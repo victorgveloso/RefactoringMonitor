@@ -19,13 +19,13 @@ case $option in
     read -p "Enter your GitHub OAuth key: " oauth_key
     read -p "Enter path to input file with list of repositories [./test-repos.txt]: " input_file
     input_file=${input_file:-"${PWD}/test-repos.txt"} # Default value if none provided
-    java -cp RefactoringMiner-3.0.2.jar br.ufmg.dcc.labsoft.refactoringanalyzer.operations.GitProjectFinder  $oauth_key "${input_file}"
+    java -cp RefactoringMiner.jar br.ufmg.dcc.labsoft.refactoringanalyzer.operations.GitProjectFinder  $oauth_key "${input_file}"
     ;;
   2)
-    java -cp RefactoringMiner-3.0.2.jar br.ufmg.dcc.labsoft.refactoringanalyzer.operations.AnalyzeProjects
+    java -cp RefactoringMiner.jar br.ufmg.dcc.labsoft.refactoringanalyzer.operations.AnalyzeProjects
     ;;
   3)
-    java -cp RefactoringMiner-3.0.2.jar br.ufmg.dcc.labsoft.refactoringanalyzer.operations.AnalyzeNewCommits
+    java -cp RefactoringMiner.jar br.ufmg.dcc.labsoft.refactoringanalyzer.operations.AnalyzeNewCommits
     ;;
   *)
     echo "Invalid option. Please select 1, 2, or 3."
