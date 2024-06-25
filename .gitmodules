@@ -1,0 +1,4 @@
+[submodule "worker/RefactoringMiner"]
+	path = worker/RefactoringMiner
+	url = https://github.com/victorgveloso/RefactoringMiner
+	branch = Monitor

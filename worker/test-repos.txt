@@ -9,7 +9,6 @@ https://github.com/novoda/download-manager/
 https://github.com/dropwizard/dropwizard/
 https://github.com/apache/druid/
 https://github.com/google/error-prone/
-https://github.com/zerocracy/farm/
 https://github.com/apache/flink/
 https://github.com/apache/hadoop/
 https://github.com/apache/hbase/
