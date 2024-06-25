@@ -1,0 +1,9 @@
+<div *ngIf="project">
+    <h1>
+        <i class="fa-brands fa-github" aria-hidden="true"></i>
+        <a href="{{ project.getCloneUrl() }}" target="_blank">{{ project.getName() }}</a>
+    </h1>
+    <br />
+    <br />
+    <refactorings-table-component [project]="project"></refactorings-table-component>
+</div>
