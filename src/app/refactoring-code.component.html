@@ -1,0 +1,43 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>File</th>
+            <th class="text-center">Refactored File Type</th>
+            <th colspan="2" class="text-center">Range</th>
+            <th>Description</th>
+            <th>Code Element</th>
+            <th>Refactoring</th>
+        </tr>
+        <tr>
+            <th></th>
+            <th class="text-center"></th>
+            <th>Line</th>
+            <th>Column</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let codeRange of codeRanges" [style.background-color]="codeRange.diffSide === 'RIGHT' ? '#ABF2BC' : codeRange.diffSide === 'LEFT' ? '#FFC0C0' : ''">
+            <td title="{{ codeRange.filePath }}">{{ codeRange.filePath | basename }}</td>
+            <td class="flex-column vertical-center">
+                <p>
+                    <i *ngIf="refactoring.isTestRefactoring === true" class="fa-solid fa-microscope"></i> 
+                    <i *ngIf="refactoring.isTestRefactoring !== true" class="fa-solid fa-gears"></i> 
+                </p>
+                <p class="text-center">
+                    {{ refactoring.isTestRefactoring ? 'Test' : 'Production' }}
+                </p>
+            </td>
+            <td>[{{ codeRange.startLine }},{{ codeRange.endLine }}]</td>
+            <td>[{{ codeRange.startColumn }},{{ codeRange.endColumn }}]</td>
+            <!-- <td>{{ codeRange.codeElementType }}</td> -->
+            <td>{{ codeRange.description }}</td>
+            <td>{{ codeRange.codeElement }}</td>
+            <td title="{{ codeRange.refactoring.getRefactoringString() }}">{{ codeRange.refactoring.getRefactoringType() }}</td>
+            <!-- <td>{{ codeRange.diffSide }}</td> -->
+            <td><a href="{{ codeRange.getRefactoringLink() }}" target="_blank"><i class="fa-solid fa-plus-minus"></i></a></td>
+        </tr>
+    </tbody>
+</table>
