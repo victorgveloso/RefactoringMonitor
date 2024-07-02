@@ -69,16 +69,46 @@ $ ./start_worker.sh
 
 ## Create a new user in the API
 
+In the same machine all the services are running, open your browser and access the following URL:
+
+`http://localhost:8080/api.php?signup&u=EMAIL&p=PASSWORD`
+
+Replace EMAIL and PASSWORD with your credentials.
 
 ## Done
 
-Now everything is set and running. If you want, you can login in the webapp using the new user credentials as instructed by the following screenshot.
+Now everything is set and running. If you want, you can login in the webapp by filling the fields in the top-right corner of the main page with your credentials.
 
-![Screenshot login](docs/screenshot-login.png)
+![Screenshot login](docs/screenshot-before-login.png)
 
-The main page displays a list of the repositories loaded into you database from the GitHub API.
+When authenticated, the log-in fields will be replaced with a welcome message and two buttons (emails and logout).
+Use the former to check all emails sent that were stored in the database.
+When you are done using the webapp, remmember to use the second button in the navigation header bar to log out your session.
 
 
+![Screenshot logged in](docs/screenshot-after-login.png)
+
+## Toggling repository monitoring status
+
+By default, any repository added with a RefactoringMonitor worker will have the monitor checkbox unmarked. One has to explicitly mark the Monitor checkbox so that repository is scheduled for monitoring in the next execution of a worker.
+
+## Inspecting specific repository
+
+
+
+## Inspecting specific refactoring
+
+![Example of a refactoring detailed view](docs/example-screenshot.png)
+
+## Contacting commit author
+
+## Storing author's response
+
+## Tagging commit
+
+## Browsing emails exchanged
+
+![Emails exchanged using RefactoringMonitor](docs/emails.png)
 
 ## Closing and pruning services
 
