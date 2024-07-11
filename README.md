@@ -85,9 +85,9 @@ In the same machine all the services are running, open your browser and access t
 
 `http://localhost:8080/api.php?signup&u=EMAIL&p=PASSWORD`
 
-Replace EMAIL and PASSWORD with your credentials.
+Replace EMAIL and PASSWORD with your credentials. Once completed, your account will be created unless an error message is provided in the server response.
 
-## Done
+## Authentication and front page
 
 Now everything is set and running. If you want, you can login in the webapp by filling the fields in the top-right corner of the main page with your credentials.
 
