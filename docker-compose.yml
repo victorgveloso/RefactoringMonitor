@@ -13,10 +13,13 @@ services:
     build:
       context: api
       dockerfile: Dockerfile
-    env_file:
-      - PHP.env
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: refactoring
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
     volumes:
-      - ./src:/var/www/html
+      - ./api/src:/var/www/html
     ports:
       - 8080:80
     depends_on:
@@ -26,7 +29,7 @@ services:
     image: mysql:5-oracle
     environment:
       MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: refactoringBKP
+      MYSQL_DATABASE: refactoring
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
     volumes:

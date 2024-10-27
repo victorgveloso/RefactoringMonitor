@@ -9,7 +9,10 @@
     require_once 'params.php';
     ini_set('memory_limit', '1024M');
     $DATABASE_NAME = getenv('MYSQL_DATABASE') ?: 'refactoring';
-    $globalConnection = new mysqli("mysql", "myuser", "mypassword", $DATABASE_NAME);
+    $DATABASE_HOST = getenv('MYSQL_HOST') ?: 'mysql';
+    $DATABASE_USER = getenv('MYSQL_USER') ?: 'myuser';
+    $DATABASE_PASSWORD = getenv('MYSQL_PASSWORD') ?: 'mypassword';
+    $globalConnection = new mysqli($DATABASE_HOST, $DATABASE_USER, $DATABASE_PASSWORD, $DATABASE_NAME);
     //$connection = new mysqli("db-user-public-my51.encs.concordia.ca", "refactor_admin", "dud4M8G$6y54", "refactoring");
     //$connection = new mysqli("127.0.0.1", "davood", "123456", "lambda-study");
 
