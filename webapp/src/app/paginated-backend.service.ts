@@ -227,7 +227,12 @@ export class PaginatedBackendService extends PaginatorService {
         }
       }
       let first = (this.currentPage - 1) * this.numberOfItemsPerPage;
-      let res = await this.fetchData(first, this.currentPage).toPromise();
+      let res;
+      try {
+        res = await this.fetchData(first, this.currentPage).toPromise();
+      } catch (error) {
+        console.error(error);        
+      }
       return res;
     }
   }
@@ -235,7 +240,8 @@ export class PaginatedBackendService extends PaginatorService {
     const url = this.backendService.BACKEND_SERVER + "?refactorings&projectID=" + this.project.getID() + "&limit=" + this.numberOfItemsPerPage + "&offset=" + offset;
     const data = this.http.get(url)
       .map(res => {
-        let returned = res.json()["refactorings"];
+        let returned = res.json();
+        returned = Object.keys(returned).map(key => returned[key]).filter(value => typeof value === 'object');
         let refactorings = this.backendService.getRefactoringsFromRow((_) => this.project, returned, (refactoring, row) => {refactoring.authorContacted = row["authorContacted"] == 1;});
         this.cache[page] = refactorings;
         return refactorings;

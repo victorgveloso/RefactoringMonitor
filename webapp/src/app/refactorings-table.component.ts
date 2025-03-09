@@ -65,17 +65,22 @@ export class RefactoringsTableComponent {
 
   ngOnInit() {
     if (this.project) {
-      this.paginator.getRefactorings(this.project);
-      this.paginator.setObservers(sortedData => {
-        if (sortedData && sortedData.length > 0) {
-          this.refactoringsFiltered = sortedData;
-          this.refactoringsFetched = true;
-        }
-      }, () => {
+      this.paginator.getRefactorings(this.project).then(() => {
+        this.paginator.setObservers(sortedData => {
+          if (sortedData && sortedData.length > 0) {
+            this.refactoringsFiltered = sortedData;
+            this.refactoringsFetched = true;
+          }
+        }, () => {
+          this.refactoringsFetched = false;
+        });
+        this.paginator.setPath('project-details/' + this.project.getID());
+        this.paginator.apply();
+      }).catch((err) => {
         this.refactoringsFetched = false;
+        console.error('Error fetching refactorings');
+        console.error(err);
       });
-      this.paginator.setPath('project-details/' + this.project.getID());
-      this.paginator.apply();
     }
   }
 
