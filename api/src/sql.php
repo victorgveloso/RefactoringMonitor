@@ -267,7 +267,14 @@ function getLambdaRows($connection, $projectID, $lambdaID, $emailedLambdasMode) 
     return $lambdaRows;
 }
 function updateQuery($connection, $query) {
-    if ($connection->query($query) === TRUE) {
+    try {
+        $status = $connection->query($query);
+    } catch (\Throwable $th) {
+        echo $query;
+        echo $th;
+        return $connection->error;
+    }
+    if ($status === TRUE) {
        return '{"status": "OK"}';
     } else {
         return $connection->error;
