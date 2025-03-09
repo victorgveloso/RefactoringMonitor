@@ -18,7 +18,7 @@
     // $connection = new mysqli("127.0.0.1", "davood", "123456", "lambda-study");
     
     // Define SQLite database path
-    $DATABASE_PATH = __DIR__ . '/RefactoringBKP.db';
+    $DATABASE_PATH = __DIR__ . '/db/refactoringBKP.db';
     
     // Create SQLite3 connection
     try {
