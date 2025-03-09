@@ -21,7 +21,7 @@ function getAuthorRank($connection, $projectID, $authorName) {
 function getAuthorRankRefactoring($connection, $projectID, $commitID) {
     $whereClause = "WHERE revisiongit.project = $projectID";
     if ($refactoringType != "") {
-        $refactoringType = mysqli_real_escape_string($connection, $refactoringType);
+        $refactoringType = SQLite3::escapeString($refactoringType);
         $whereClause .= " AND refactoringgit.refactoringType = '$refactoringType'";
     }
     $q = "SELECT COUNT(*) + 1 authorRank FROM (
@@ -86,7 +86,7 @@ function selectQuery($connection, $query) {
 function getProjectRows($connection, $projectID) {
     $whereClause = "";
     if ($projectID != "") {
-        $projectID = mysqli_real_escape_string($connection, $projectID);
+        $projectID = SQLite3::escapeString($projectID);
         $whereClause = "WHERE projectgit.id = $projectID";
     } 
     $qur = "SELECT projectgit.*, COUNT(lambdastable.id) AS numberOfLambdas, COUNT(revisiongit.id) AS numberOfCommits,
@@ -123,14 +123,14 @@ function getLambdaRows($connection, $projectID, $lambdaID, $emailedLambdasMode) 
     $extraColumns = "";
 
     if ($projectID != "") {
-        $projectID = mysqli_real_escape_string($connection, $projectID);
+        $projectID = SQLite3::escapeString($projectID);
         $whereClause = "revisiongit.project = $projectID";
     }
 
     if ($lambdaID != "") {
         $user = getUser($_REQUEST["jwt"]);
         $userID = $user->userID;
-        $lambdaID = mysqli_real_escape_string($connection, $lambdaID);
+        $lambdaID = SQLite3::escapeString($lambdaID);
         $whereClause = "lambdastable.id = $lambdaID";
     }
 

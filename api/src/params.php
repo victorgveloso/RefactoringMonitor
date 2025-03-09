@@ -87,7 +87,7 @@ class Refactorings extends Parameter {
         }
     
         if ($projectID != "") {
-            $projectID = mysqli_real_escape_string($connection, $projectID);
+            $projectID = SQLite3::escapeString($projectID);
             array_push($whereClauses, "rg.project = $projectID");
         }
     
@@ -98,7 +98,7 @@ class Refactorings extends Parameter {
         }
 
         if ($refactoringID != "") {
-            $refactoringID = mysqli_real_escape_string($connection, $refactoringID);
+            $refactoringID = SQLite3::escapeString($refactoringID);
             array_push($whereClauses, "r.id = $refactoringID");
         }
     
@@ -253,7 +253,7 @@ class MonitorProject extends Parameter {
 
         if (strtoupper($user->role) == "ADMIN") {
 
-            $projectID = mysqli_real_escape_string($this->connection, $_REQUEST["projectID"]);
+            $projectID = SQLite3::escapeString($_REQUEST["projectID"]);
             $shouldMonitor = $_REQUEST["shouldMonitor"] == 'true' ? 1 : 0;
             $q = "UPDATE projectgit SET monitoring_enabled = $shouldMonitor
                     WHERE projectgit.id = $projectID
@@ -271,7 +271,7 @@ class MonitorProject extends Parameter {
 class SkipLambda extends Parameter {
     protected function do() {
         $user = getUser($_REQUEST["jwt"]);
-        $lambdaID = mysqli_real_escape_string($this->connection, $_REQUEST["lambdaID"]);
+        $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
         $status = $_REQUEST["skip"] == 'true' ? 'SKIPPED' : 'NEW';
         $q = "UPDATE lambdastable SET status = '$status'
                 WHERE lambdastable.id = $lambdaID
@@ -299,8 +299,8 @@ class AllTags extends Parameter {
 class TagsFor extends Parameter {
     protected function do() {
         $user = getUser($_REQUEST["jwt"]);
-        $lambdaID = mysqli_real_escape_string($this->connection, $_REQUEST["lambdaID"]);
-        $userID = mysqli_real_escape_string($this->connection, $_REQUEST["userID"]);
+        $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
+        $userID = SQLite3::escapeString($_REQUEST["userID"]);
         $q = "SELECT label FROM tag
                 INNER JOIN lambda_tags ON tag.id = lambda_tags.tag
                 WHERE lambda_tags.lambda = $lambdaID and lambda_tags.user = $userID";
@@ -312,9 +312,9 @@ class TagsFor extends Parameter {
 }
 class SetTag extends Parameter {
     private function tagLambda() {
-        $lambdaID = mysqli_real_escape_string($this->connection, $_REQUEST["lambdaID"]);
+        $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
         $tag = str_replace("\\'", "'", urldecode($_REQUEST["tag"]));
-        $tag = mysqli_real_escape_string($this->connection, $tag);
+        $tag = SQLite3::escapeString($tag);
         $mode = $_REQUEST["mode"];
 
         if ($mode == "add") {
@@ -346,9 +346,9 @@ class SetTag extends Parameter {
         }
     }
     private function tagRefactoring() {
-        $refactoringID = mysqli_real_escape_string($this->connection, $_REQUEST["refactoring"]);
+        $refactoringID = SQLite3::escapeString($_REQUEST["refactoring"]);
         $tag = str_replace("\\'", "'", urldecode($_REQUEST["tag"]));
-        $tag = mysqli_real_escape_string($this->connection, $tag);
+        $tag = SQLite3::escapeString($tag);
         $mode = $_REQUEST["mode"];
 
         if ($mode == "add") {
@@ -437,7 +437,7 @@ class GetEmailTemplateRefactoring extends Parameter {
     }
     protected function do() {
         $user = getUser($_REQUEST["jwt"]);
-        $refactoringID = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["refactoringID"]));
+        $refactoringID = SQLite3::escapeString(urldecode($_REQUEST["refactoringID"]));
         $q = "SELECT r.authorName, r.authorEmail, r.project AS projectID, p.name AS projectName, 
         CONCAT(LEFT(p.cloneUrl, LENGTH(p.cloneUrl)-4),'/commit/',r.commitId, '#diff-', SHA2(c.filePath,256), 'R', c.startLine, '-R', c.endLine) AS refactoringDiffLink, c.filePath
         FROM refactoringgit r2
@@ -556,7 +556,7 @@ class GetEmailTemplate extends Parameter {
     }
     protected function do() {
         $user = getUser($_REQUEST["jwt"]);
-        $lambdaID = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["lambdaID"]));
+        $lambdaID = SQLite3::escapeString(urldecode($_REQUEST["lambdaID"]));
 
         $q = "SELECT 
                     `revisiongit`.`authorName`,
@@ -692,11 +692,11 @@ class SendEmail extends Parameter {
 
         $result = $this->doSendEmail($userEmail, $userFullName, $authorEmail, $subject, $emailBody, $bcc);
         if ($result) {
-            $emailBody = mysqli_real_escape_string($this->connection, $emailBody);
-            $authorEmail = mysqli_real_escape_string($this->connection, $authorEmail);
-            $lambdaID = mysqli_real_escape_string($this->connection, $lambdaID);
-            $userEmail = mysqli_real_escape_string($this->connection, $userEmail);
-            $subject = mysqli_real_escape_string($this->connection, $subject);
+            $emailBody = SQLite3::escapeString($emailBody);
+            $authorEmail = SQLite3::escapeString($authorEmail);
+            $lambdaID = SQLite3::escapeString($lambdaID);
+            $userEmail = SQLite3::escapeString($userEmail);
+            $subject = SQLite3::escapeString($subject);
             $q = "";
             if (isset($_REQUEST["revision"])) {
                 $revisionID = urldecode($_REQUEST["revision"]);
@@ -728,12 +728,12 @@ class AddResponseRefactoring extends Parameter {
         $emailBody = str_replace("\\\"", "\"", $emailBody);
         $emailBody = str_replace("\\'", "'", $emailBody);
 
-        $userEmail = mysqli_real_escape_string($this->connection, $user->email);
-        $revisionID = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["revision"]));
-        $authorEmail = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["fromEmail"]));
-        $emailBody = mysqli_real_escape_string($this->connection, $emailBody);
-        $subject = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["subject"]));
-        $refactoringID = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["refactoring"]));
+        $userEmail = SQLite3::escapeString($user->email);
+        $revisionID = SQLite3::escapeString(urldecode($_REQUEST["revision"]));
+        $authorEmail = SQLite3::escapeString(urldecode($_REQUEST["fromEmail"]));
+        $emailBody = SQLite3::escapeString($emailBody);
+        $subject = SQLite3::escapeString(urldecode($_REQUEST["subject"]));
+        $refactoringID = SQLite3::escapeString(urldecode($_REQUEST["refactoring"]));
 
         $q = "SELECT id FROM surveymail WHERE surveymail.revision = $revisionID AND surveymail.recipient = '$authorEmail'";
 
@@ -758,11 +758,11 @@ class AddResponse extends Parameter {
         $emailBody = str_replace("\\\"", "\"", $emailBody);
         $emailBody = str_replace("\\'", "'", $emailBody);
 
-        $userEmail = mysqli_real_escape_string($this->connection, $user->email);
-        $authorEmail = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["fromEmail"]));
-        $emailBody = mysqli_real_escape_string($this->connection, $emailBody);
-        $subject = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["subject"]));
-        $lambdaID = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["lambda"]));
+        $userEmail = SQLite3::escapeString($user->email);
+        $authorEmail = SQLite3::escapeString(urldecode($_REQUEST["fromEmail"]));
+        $emailBody = SQLite3::escapeString($emailBody);
+        $subject = SQLite3::escapeString(urldecode($_REQUEST["subject"]));
+        $lambdaID = SQLite3::escapeString(urldecode($_REQUEST["lambda"]));
 
         $q = "INSERT INTO surveymail(`alternativeAddress`, `body`, `recipient`, `sentDate`, `sender`, `subject`)
                     VALUES('', '$emailBody', '$userEmail', NOW(), '$authorEmail', '$subject')";
@@ -784,7 +784,7 @@ class GetEmails  extends Parameter {
     protected function do() {
         $user = getUser($_REQUEST["jwt"]);
         if (isset($_REQUEST["lambdaID"])) {
-            $lambdaID = mysqli_real_escape_string($this->connection, $_REQUEST["lambdaID"]);
+            $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
             $q = "SELECT surveymail.*, (EXISTS(SELECT * FROM users WHERE users.email = surveymail.recipient)) recipientIsUser
                     FROM surveymail
                     INNER JOIN lambdastable_surveymail ON lambdastable_surveymail.surveyEmails_id = surveymail.id
@@ -792,7 +792,7 @@ class GetEmails  extends Parameter {
                     ORDER BY surveymail.sentDate";
 
         } elseif (isset($_REQUEST["refactoring"])) {
-            $email = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["email"]));
+            $email = SQLite3::escapeString(urldecode($_REQUEST["email"]));
             $refactoringID = $_REQUEST["refactoring"];
             $q = "  SELECT r.id AS refactoringId, sm.*, sr.id AS responseId, sr.bodyHtml, sr.subject AS responseSubject, sr.sentDate AS responseSentDate
                     FROM refactoringgit r 
@@ -800,7 +800,7 @@ class GetEmails  extends Parameter {
                     LEFT OUTER JOIN surveyresponse sr ON sr.survey = sm.id 
                     WHERE r.id = $refactoringID";
         } elseif (isset($_REQUEST["email"])) {
-            $email = mysqli_real_escape_string($this->connection, urldecode($_REQUEST["email"]));
+            $email = SQLite3::escapeString(urldecode($_REQUEST["email"]));
              $q = "SELECT surveymail.*, lambdastable_surveymail.lambdastable_id,
                         (EXISTS(SELECT * FROM users WHERE users.email = surveymail.recipient)) recipientIsUser
                     FROM surveymail
@@ -822,7 +822,7 @@ class Signup extends Parameter {
     }
     private function doRegister($connection, $username, $password) {
     
-        $username = mysqli_real_escape_string($connection, strtolower($username));
+        $username = SQLite3::escapeString(strtolower($username));
         $password = $this->hashPassword($password);
 
         $q = "INSERT INTO users (userName,password) VALUES ('$username', '$password')";
@@ -853,7 +853,7 @@ class Login extends Parameter {
     }
     private function doLogin($connection, $username, $password) {
     
-        $username = mysqli_real_escape_string($connection, strtolower($username));
+        $username = SQLite3::escapeString(strtolower($username));
         $password = $this->hashPassword($password);
     
         $q = "SELECT * FROM users WHERE userName = '$username' AND password = '$password'";
