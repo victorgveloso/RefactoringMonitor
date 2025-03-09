@@ -20,11 +20,11 @@
     // Define SQLite database path
     $DATABASE_PATH = __DIR__ . '/RefactoringBKP.db';
     
-    // Create PDO connection to SQLite database
+    // Create SQLite3 connection
     try {
-        $globalConnection = new PDO('sqlite:' . $DATABASE_PATH);
-        $globalConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
+        $globalConnection = new SQLite3($DATABASE_PATH);
+        $globalConnection->enableExceptions(true);
+    } catch (Exception $e) {
         die('Connection failed: ' . $e->getMessage());
     }
     const AllLambdas = 0;
