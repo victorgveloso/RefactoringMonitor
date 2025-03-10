@@ -602,7 +602,7 @@ class Login extends Parameter {
         $q = "SELECT * FROM users WHERE userName = '$username' AND password = '$password'";
         $userRow = getQueryRows($connection, $q);
     
-        if (count($userRow) == 1 && $userRow[0]["userName"] == $username && $userRow[0]["password"] == $password) {
+        if (count($userRow) >= 1 && $userRow[0]["userName"] == $username && $userRow[0]["password"] == $password) {
     
             $tokenId    = base64_encode(uniqid());
             $issuedAt   = time();
