@@ -372,7 +372,6 @@ class GetEmailTemplateRefactoring extends Parameter {
     EMAIL;
     }
     protected function do() {
-        $user = getUser($_REQUEST["jwt"]);
         $refactoringID = SQLite3::escapeString(urldecode($_REQUEST["refactoringID"]));
         $q = "SELECT r.authorName, r.authorEmail, r.project AS projectID, p.name AS projectName, 
         (LEFT(p.cloneUrl, LENGTH(p.cloneUrl)-4) || '/commit/' || r.commitId ||  '#diff-' ||  SHA2(c.filePath,256) || 'R' || c.startLine || '-R' || c.endLine) AS refactoringDiffLink, c.filePath
