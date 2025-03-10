@@ -48,7 +48,7 @@ function getProjectRows($connection, $projectID) {
         $projectID = SQLite3::escapeString($projectID);
         $whereClause = "WHERE projectgit.id = $projectID";
     } 
-    $qur = "SELECT projectgit.*, COUNT(revisiongit.id) AS numberOfCommits,
+    $qur = "SELECT projectgit.*, COUNT(revisiongit.id) AS numberOfCommits
             FROM projectgit 
                 LEFT OUTER JOIN revisiongit ON projectgit.id = revisiongit.project
             $whereClause
