@@ -2,7 +2,7 @@
 abstract class Parameter {
     private $decorated;
     protected $connection;
-    public function __construct(Parameter $decorated = null) {
+    public function __construct(?Parameter $decorated = null) {
         global $globalConnection;
         $this->connection = $globalConnection;
         $this->decorated = $decorated;
