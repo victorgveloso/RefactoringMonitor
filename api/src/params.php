@@ -172,23 +172,6 @@ class Refactorings extends Parameter {
         return "refactorings";
     }
 }
-class Lambdas extends Parameter {
-    protected function do() {
-        $lambdaID = "";
-        if (isset($_REQUEST["lambdaID"])) {
-            $lambdaID = $_REQUEST["lambdaID"];
-        }
-
-        $projectID = $_REQUEST["projectID"];
-
-        $lambdaRows = getLambdaRows($this->connection, $projectID, $lambdaID, AllLambdas);
-        
-        echo (json_encode($lambdaRows));
-    }
-    protected function name() : string {
-        return "lambdas";
-    }
-}
 class EmailedRefactorings extends Refactorings {
     protected function do() {
         $refactoringRowsMine = $this->getRefactoringRows($this->connection, "", "", "ImInvolvedInRefactorings");
@@ -213,32 +196,6 @@ class EmailedRefactorings extends Refactorings {
         return "emailedRefactorings";
     }
 }
-class EmailedLambdas extends Parameter {
-    protected function do() {
-
-        $lambdaRowsMine = getLambdaRows($this->connection, "", "", ImInvolvedInLambdas);
-        $lambdaRowsOthers = getLambdaRows($this->connection, "", "", OnlyEmailedByOthersLambdas);
-
-        $lambdaRowsAll = array("ByMe" => $lambdaRowsMine, "ByOthers" => $lambdaRowsOthers);
-
-        $projectRows = array();
-        foreach ($lambdaRowsAll as $lambdaRowsAllKey => $lambdaRows) {
-            foreach ($lambdaRows as $key => $lambdaRow) {
-                $projectID = $lambdaRow["projectID"];
-                if (!isset($projectRows[$projectID])) {
-                    $allProjectsRows = getProjectRows($this->connection, $projectID);
-                    $projectRows[$projectID] = $allProjectsRows[0];
-                }
-                $lambdaRowsAll[$lambdaRowsAllKey][$key]["project"] = $projectRows[$projectID];
-            }
-        }
-        
-        echo (json_encode($lambdaRowsAll));
-    }
-    protected function name() : string {
-        return "emailedLambdas";
-    }
-}
 class MonitorProject extends Parameter {
     protected function do() {
         $user = getUser($_REQUEST["jwt"]);
@@ -258,20 +215,6 @@ class MonitorProject extends Parameter {
     }
     protected function name() : string {
         return "monitorProject";
-    }
-}
-class SkipLambda extends Parameter {
-    protected function do() {
-        $user = getUser($_REQUEST["jwt"]);
-        $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
-        $status = $_REQUEST["skip"] == 'true' ? 'SKIPPED' : 'NEW';
-        $q = "UPDATE lambdastable SET status = '$status'
-                WHERE lambdastable.id = $lambdaID
-        ";
-        echo(updateQuery($this->connection, $q));
-    }
-    protected function name() : string {
-        return "skipLambda";
     }
 }
 class AllTags extends Parameter {
@@ -470,150 +413,6 @@ class GetEmailTemplateRefactoring extends Parameter {
         return "getEmailTemplateRefactoring";
     }
 }
-class GetEmailTemplate extends Parameter {
-
-    private function getEmailBody($templateVars) {
-        
-        extract($templateVars);
-
-        if ($lambdaDensity > 1) {
-            $lambdas = "lambdas";
-        } else {
-            $lambdas = "lambda";
-        }
-
-        return <<<EMAIL
-        <p>Dear $authorName,</p>
-
-        <p>We are a group of researchers from Oregon State University, USA 
-            and Concordia University, Montreal, Canada,
-            investigating the usage of Lambda expressions in code.</p>
-
-        <p>We found out that you are <b>$contributorRank</b> of code 
-            using Lambda expressions in <b>$projectName</b>, 
-            and this project is ranked at position 
-            <b>$projectRank</b> among the <b>$numberOfAnalyzedProjects</b> examined 
-            top-starred projects hosted on GitHub with an average density of <b>$lambdaDensity</b> $lambdas per class.</p>
-
-        <p>Therefore, we consider you are expert on Lambda expressions, and we would like to ask you the 
-            following questions for a specific Lambda expression you recently introduced and can be inspected in 
-            <a href="$commitUrl" target="_blank">$commitUrl</a>:
-        </p>
-
-        <ul>
-            <li>Why did you introduce this Lambda expression?</li>
-            <li>Did you introduce it manually or used an automated tool (quick fix/assist, refactoring)?</li>
-            <li>What IDE are you using?</li>
-        </ul>
-
-        <p>Your response will be anonymized in our study and will be used only for research purposes.</p>
-
-        <p></p>
-        <p>Thank you very much for your help and participation in our study.
-            If you are interested in the results of this study, please let us know.
-            We will contact you once the study is concluded.
-            </p>
-
-        <p style="margin-top: 30px">
-            Davood Mazinanian (<a href="http://dmazinanian.me/" target="_blank">http://dmazinanian.me/</a>)<br />
-            Ameya Ketkar (<a href="https://github.com/ameyaKetkar" target="_blank">https://github.com/ameyaKetkar</a>)<br />
-            Nikolaos Tsantalis (<a href=" https://users.encs.concordia.ca/~nikolaos/" target="_blank">https://users.encs.concordia.ca/~nikolaos/</a>)<br />
-            Danny Dig (<a href="http://dig.cs.illinois.edu/" target="_blank">http://dig.cs.illinois.edu/</a>)
-            Tse-Hsun (Peter) Chen (<a href="https://petertsehsun.github.io/" target="_blank">https://petertsehsun.github.io/</a>)<br />
-        </p>
-    EMAIL;
-    }
-    private function getRankString($number) {
-        if ($number <= 3) {
-            $r = $number;
-            switch ($number) {
-                case 1: 
-                    $r .= "st";
-                    break;
-                case 2: 
-                    $r .= "nd";
-                    break;
-                case 3: 
-                    $r .= "rd";
-                    break;
-            }
-            return "positioned as the " . $r . " contributor";
-        } else {
-            if ($number % 5 != 0) {
-                $topRank = (floor($number / 5) + 1) * 5;
-            } else {
-                $topRank = floor($number / 5) * 5;
-            }
-            return "among the top-" . $topRank . " contributors";
-        }
-    }
-    protected function do() {
-        $user = getUser($_REQUEST["jwt"]);
-        $lambdaID = SQLite3::escapeString(urldecode($_REQUEST["lambdaID"]));
-
-        $q = "SELECT 
-                    `revisiongit`.`authorName`,
-                    `revisiongit`.`project` projectID,
-                    `projectgit`.`name` projectName,
-                    CONVERT(
-                        CONCAT(
-                            REPLACE(projectgit.cloneUrl,'.git', ''),
-                            '/commit/',
-                            revisiongit.commitId,
-                            '#diff-', 
-                            md5(lambdastable.filePath), 
-                            'R', 
-                            lambdastable.startLine) 
-                        USING UTF8) lambdaDiffLink
-                FROM lambdastable
-                INNER JOIN revisiongit ON lambdastable.revision = revisiongit.id
-                INNER JOIN projectgit ON projectgit.id = revisiongit.project
-                WHERE lambdastable.id = $lambdaID";
-
-        $projectsInfo = getQueryRows($this->connection, $q);
-
-        $authorName = $projectsInfo[0]["authorName"];
-        $templateVars["authorName"] = $authorName;
-
-        $templateVars["commitUrl"] = $projectsInfo[0]["lambdaDiffLink"];
-        $templateVars["projectName"] = $projectsInfo[0]["projectName"];
-
-        $projectID = $projectsInfo[0]["projectID"];
-        $templateVars["contributorRank"] = $this->getRankString(getAuthorRank($this->connection, $projectID, $authorName));
-        
-        $q = "SELECT p.lambdaDensityPerClass,
-                (SELECT COUNT(*) FROM projectgit) projectsCount,
-                (SELECT COUNT(*) FROM projectsadditionalinfo pi
-                    WHERE pi.lambdaDensityPerClass > p.lambdaDensityPerClass) projectRank
-                FROM projectsadditionalinfo p
-                WHERE p.project = $projectID
-        ";
-        $projectsInfo = getQueryRows($this->connection, $q);
-
-        $templateVars["numberOfAnalyzedProjects"] = 0;
-        $templateVars["projectRank"] = 0;
-        $templateVars["lambdaDensity"] = 0;
-
-        if (count($projectsInfo) == 1) {
-            $templateVars["numberOfAnalyzedProjects"] = $projectsInfo[0]["projectsCount"];
-            $templateVars["projectRank"] = $projectsInfo[0]["projectRank"];
-            $lambdaDensity = $projectsInfo[0]["lambdaDensityPerClass"];
-            $percision = 2;
-            do {
-                $lambdaDensityRounded = round ($lambdaDensity, $percision);
-                $percision++; 
-            } while ($lambdaDensityRounded == 0 && $percision < 15);
-            $templateVars["lambdaDensity"] = $lambdaDensityRounded;
-        }
-
-        $template = json_encode($this->getEmailBody($templateVars));
-
-        echo "{ \"template\": $template }";
-    }
-    protected function name() : string {
-        return "getEmailTemplate";
-    }
-}
 class SendEmail extends Parameter {
     private function updateSameAuthorCommitStatus($connection, $commitID, $authorEmail) {
         $q = "UPDATE revisiongit SET status = 'AUTHOR_CONTACTED'
@@ -723,36 +522,6 @@ class AddResponseRefactoring extends Parameter {
     }
     protected function name() : string {
         return "addRefactoringResponse";
-    }
-}
-class AddResponse extends Parameter {
-    protected function do() {
-        $user = getUser($_REQUEST["jwt"]);
-
-        $emailBody = urldecode($_REQUEST["body"]);
-        $emailBody = str_replace("\\\"", "\"", $emailBody);
-        $emailBody = str_replace("\\'", "'", $emailBody);
-
-        $userEmail = SQLite3::escapeString($user->email);
-        $authorEmail = SQLite3::escapeString(urldecode($_REQUEST["fromEmail"]));
-        $emailBody = SQLite3::escapeString($emailBody);
-        $subject = SQLite3::escapeString(urldecode($_REQUEST["subject"]));
-        $lambdaID = SQLite3::escapeString(urldecode($_REQUEST["lambda"]));
-
-        $q = "INSERT INTO surveymail(`alternativeAddress`, `body`, `recipient`, `sentDate`, `sender`, `subject`)
-                    VALUES('', '$emailBody', '$userEmail', NOW(), '$authorEmail', '$subject')";
-        
-        updateQuery($this->connection, $q);
-
-        $emailID = $this->connection->insert_id;
-
-        $q = "INSERT INTO lambdastable_surveymail (`lambdastable_id`, `surveyEmails_id`)
-                    VALUES ($lambdaID, $emailID)";
-
-        echo(updateQuery($this->connection, $q));
-    }
-    protected function name() : string {
-        return "addResponse";
     }
 }
 class GetEmails  extends Parameter {
@@ -877,13 +646,6 @@ class Login extends Parameter {
     }
     protected function name() : string {
         return "login";
-    }
-}
-class Sha extends Parameter {
-    protected function do() {
-    }
-    protected function name() : string {
-        return "sha";
     }
 }
 function getSecretKey() {

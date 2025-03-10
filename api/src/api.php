@@ -35,7 +35,7 @@
     header("Access-Control-Allow-Origin: *");
     header("Content-type: application/json");
 
-    $paramsProcessor = new Projects(new Lambdas(new EmailedLambdas(new MonitorProject(new SkipLambda(new AllTags(new TagsFor(new SetTag(new GetEmailTemplate(new SendEmail(new AddResponse(new GetEmails(new Login(new Signup(new Refactorings(new GetEmailTemplateRefactoring(new EmailedRefactorings(new CodeRange(new AddResponseRefactoring()))))))))))))))))));
+    $paramsProcessor = new Projects(new MonitorProject(new AllTags(new TagsFor(new SetTag(new SendEmail(new GetEmails(new Login(new Signup(new Refactorings(new GetEmailTemplateRefactoring(new EmailedRefactorings(new CodeRange(new AddResponseRefactoring())))))))))))));
     $paramsProcessor->handle();
    
 ?>
