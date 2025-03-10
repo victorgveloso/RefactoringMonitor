@@ -1,20 +1,4 @@
 <?php
-function getAuthorRank($connection, $projectID, $authorName) {
-    $q = "SELECT COUNT(*) + 1 authorRank FROM (
-        SELECT COUNT(*) numberOfLambdas FROM lambdastable
-            INNER JOIN revisiongit ON lambdastable.revision = revisiongit.id
-            WHERE revisiongit.project = $projectID
-            GROUP BY revisiongit.authorName
-            HAVING COUNT(*) > 
-                (SELECT COUNT(*) FROM lambdastable l
-                    INNER JOIN revisiongit r ON l.revision = r.id
-                    WHERE 
-                        r.authorName = '$authorName' AND
-                        r.project = $projectID)
-    ) t1";
-    $rows = getQueryRows($connection, $q);
-    return $rows[0]["authorRank"];
-}
 function getCommitRefactoringsCount($connection, $projectID, $authorEmail, $refactoringType) {
     
     $whereClause = "";
