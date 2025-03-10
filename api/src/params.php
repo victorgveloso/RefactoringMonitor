@@ -564,7 +564,7 @@ class Signup extends Parameter {
         return sha1($password . $salt);
     }
     private function doRegister($connection, $username, $password) {
-    
+        $u = $username;
         $username = SQLite3::escapeString(strtolower($username));
         $password = $this->hashPassword($password);
 
@@ -577,9 +577,9 @@ class Signup extends Parameter {
                 "username" => $username,
                 "password" => $password
             );
-            echo json_encode($resp);
+            echo json_encode(array("status" => "OK", "resp" => $resp, "username" => $u, "password" => $password));
         } else {
-            echo json_encode(array("status" => "UNAUTHORIZED"));
+            echo json_encode(array("status" => "UNAUTHORIZED", "resp" => $resp, "username" => $u, "password" => $password));
         }
     }
     protected function do() {
@@ -634,7 +634,7 @@ class Login extends Parameter {
             echo json_encode($unencodedArray);
     
         } else {
-            echo '{"status": "UNAUTHORIZED"}';
+            echo json_encode(array("status" => "UNAUTHORIZED", "userRow" => $userRow));
         }
     }
     protected function do() {
