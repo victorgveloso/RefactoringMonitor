@@ -222,9 +222,7 @@ class AllTags extends Parameter {
         $user = getUser($_REQUEST["jwt"]);
         $userID = $user->userID;
         $q = "SELECT DISTINCT label FROM tag
-                LEFT OUTER JOIN lambda_tags ON tag.id = lambda_tags.tag
-                LEFT OUTER JOIN refactoringmotivation ON tag.id = refactoringmotivation.tag
-                WHERE lambda_tags.user = $userID OR lambda_tags.user IS NULL";
+                LEFT OUTER JOIN refactoringmotivation ON tag.id = refactoringmotivation.tag";
         echo(selectQuery($this->connection, $q));
     }
     protected function name() : string {
@@ -233,12 +231,7 @@ class AllTags extends Parameter {
 }
 class TagsFor extends Parameter {
     protected function do() {
-        $user = getUser($_REQUEST["jwt"]);
-        $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
-        $userID = SQLite3::escapeString($_REQUEST["userID"]);
-        $q = "SELECT label FROM tag
-                INNER JOIN lambda_tags ON tag.id = lambda_tags.tag
-                WHERE lambda_tags.lambda = $lambdaID and lambda_tags.user = $userID";
+        $q = "SELECT label FROM tag";
         echo(selectQuery($this->connection, $q));
     }
     protected function name() : string {
@@ -248,39 +241,6 @@ class TagsFor extends Parameter {
 class SetTag extends Parameter {
     private $user;
 
-    private function tagLambda() {
-        $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
-        $tag = str_replace("\\'", "'", urldecode($_REQUEST["tag"]));
-        $tag = SQLite3::escapeString($tag);
-        $mode = $_REQUEST["mode"];
-
-        if ($mode == "add") {
-            $q = "SELECT id FROM tag WHERE tag.label = '$tag'";
-            $tagIDRows = getQueryRows($this->connection, $q);
-            if (count($tagIDRows) == 1) {
-                $tagID = $tagIDRows[0]["id"];
-            } else {
-                $q = "INSERT INTO tag(label) VALUES('$tag')";
-                if (json_decode(updateQuery($this->connection, $q))["status"] == "OK") {
-                    $tagID = $this->connection->insert_id;
-                } else {
-                    $tagID = -1;
-                }
-            }
-            if (isset($tagID) && $tagID > 0) {
-                $q = "INSERT INTO lambda_tags(tag, lambda, user) VALUES($tagID, $lambdaID, $this->user->userID)";
-                echo(updateQuery($this->connection, $q));
-            }
-
-        } elseif ($mode == "remove") {
-            $q = "DELETE FROM lambda_tags 
-                    WHERE lambda_tags.tag = 
-                    (SELECT id FROM tag WHERE tag.label = '$tag')
-                    AND lambda_tags.user = $this->user->userID
-                    AND lambda_tags.lambda = $lambdaID";
-            echo(updateQuery($this->connection, $q));
-        }
-    }
     private function tagRefactoring() {
         $refactoringID = SQLite3::escapeString($_REQUEST["refactoring"]);
         $tag = str_replace("\\'", "'", urldecode($_REQUEST["tag"]));
@@ -315,12 +275,10 @@ class SetTag extends Parameter {
     }
     protected function do() {
         $this->user = getUser($_REQUEST["jwt"]);
-        if (isset($_REQUEST["lambdaID"])) {
-            $this->tagLambda();
-        } elseif (isset($_REQUEST["refactoring"])) {
+        if (isset($_REQUEST["refactoring"])) {
             $this->tagRefactoring();
         } else {
-            echo('{"status":"ERROR", "message": "No lambda or refactoring ID provided."}');
+            echo('{"status":"ERROR", "message": "No refactoring ID provided."}');
         }
         
     }
@@ -525,16 +483,7 @@ class AddResponseRefactoring extends Parameter {
 }
 class GetEmails  extends Parameter {
     protected function do() {
-        $user = getUser($_REQUEST["jwt"]);
-        if (isset($_REQUEST["lambdaID"])) {
-            $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
-            $q = "SELECT surveymail.*, (EXISTS(SELECT * FROM users WHERE users.email = surveymail.recipient)) recipientIsUser
-                    FROM surveymail
-                    INNER JOIN lambdastable_surveymail ON lambdastable_surveymail.surveyEmails_id = surveymail.id
-                    WHERE lambdastable_surveymail.lambdastable_id = $lambdaID
-                    ORDER BY surveymail.sentDate";
-
-        } elseif (isset($_REQUEST["refactoring"])) {
+        if (isset($_REQUEST["refactoring"])) {
             $email = SQLite3::escapeString(urldecode($_REQUEST["email"]));
             $refactoringID = $_REQUEST["refactoring"];
             $q = "  SELECT r.id AS refactoringId, sm.*, sr.id AS responseId, sr.bodyHtml, sr.subject AS responseSubject, sr.sentDate AS responseSentDate
@@ -544,10 +493,9 @@ class GetEmails  extends Parameter {
                     WHERE r.id = $refactoringID";
         } elseif (isset($_REQUEST["email"])) {
             $email = SQLite3::escapeString(urldecode($_REQUEST["email"]));
-             $q = "SELECT surveymail.*, lambdastable_surveymail.lambdastable_id,
+             $q = "SELECT surveymail.*,
                         (EXISTS(SELECT * FROM users WHERE users.email = surveymail.recipient)) recipientIsUser
                     FROM surveymail
-                    INNER JOIN lambdastable_surveymail ON lambdastable_surveymail.surveyEmails_id = surveymail.id
                     WHERE surveymail.recipient LIKE '$email' OR surveymail.sender LIKE '$email'
                     ORDER BY surveymail.sentDate";
         }

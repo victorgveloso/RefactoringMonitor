@@ -48,14 +48,9 @@ function getProjectRows($connection, $projectID) {
         $projectID = SQLite3::escapeString($projectID);
         $whereClause = "WHERE projectgit.id = $projectID";
     } 
-    $qur = "SELECT projectgit.*, COUNT(lambdastable.id) AS numberOfLambdas, COUNT(revisiongit.id) AS numberOfCommits,
-            COUNT(CASE 
-                WHEN lambdastable.status = 'NEW' THEN lambdastable.status
-                ELSE NULL
-            END) AS numberOfNewLambdas
+    $qur = "SELECT projectgit.*, COUNT(revisiongit.id) AS numberOfCommits,
             FROM projectgit 
                 LEFT OUTER JOIN revisiongit ON projectgit.id = revisiongit.project
-                LEFT OUTER JOIN lambdastable ON lambdastable.revision = revisiongit.id
             $whereClause
             GROUP BY projectgit.id";
 
