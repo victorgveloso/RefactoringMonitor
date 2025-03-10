@@ -42,7 +42,7 @@ class CodeRange extends Parameter {
         $refactoringID = $_REQUEST["refactoringID"];
     
         $q = "SELECT r.id AS refactoringId, r.description AS refactoringDescription, r.refactoringType, cr.*, rg.commitId, pg.cloneUrl,
-                    CONCAT(LEFT(pg.cloneUrl, LENGTH(pg.cloneUrl)-4),'/commit/',rg.commitId, '#diff-', SHA2(cr.filePath,256), 'R', cr.startLine, '-R', cr.endLine) AS refactoringLink
+                    (LEFT(pg.cloneUrl, LENGTH(pg.cloneUrl)-4) || '/commit/' || rg.commitId ||  '#diff-' ||  SHA2(cr.filePath,256) || 'R' || cr.startLine || '-R' || cr.endLine) AS refactoringLink
             FROM refactoringgit r
             LEFT OUTER JOIN revisiongit rg  ON rg.id = r.revision
             LEFT OUTER JOIN projectgit pg  ON pg.id = rg.project
@@ -432,7 +432,7 @@ class GetEmailTemplateRefactoring extends Parameter {
         $user = getUser($_REQUEST["jwt"]);
         $refactoringID = SQLite3::escapeString(urldecode($_REQUEST["refactoringID"]));
         $q = "SELECT r.authorName, r.authorEmail, r.project AS projectID, p.name AS projectName, 
-        CONCAT(LEFT(p.cloneUrl, LENGTH(p.cloneUrl)-4),'/commit/',r.commitId, '#diff-', SHA2(c.filePath,256), 'R', c.startLine, '-R', c.endLine) AS refactoringDiffLink, c.filePath
+        (LEFT(p.cloneUrl, LENGTH(p.cloneUrl)-4) || '/commit/' || r.commitId ||  '#diff-' ||  SHA2(c.filePath,256) || 'R' || c.startLine || '-R' || c.endLine) AS refactoringDiffLink, c.filePath
         FROM refactoringgit r2
         INNER JOIN revisiongit r ON r2.revision = r.id  
         INNER JOIN projectgit p ON r.project = p.id 
