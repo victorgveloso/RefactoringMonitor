@@ -30,9 +30,11 @@ function utf8ize($d) {
 function getQueryRows($connection, $query) {
     $result = $connection->query($query);
     $rows = array();
-    if ($result->num_rows > 0) {
-        while($r = $result->fetch_assoc()) {
-            $rows[] = $r;
+    if ($result->numColumns() > 0) {
+        while($res = $result->fetchArray()) {
+            foreach ($res as $value) {
+                $rows[] = utf8_encode($value);
+            }
         }
     }
     return utf8ize($rows);
