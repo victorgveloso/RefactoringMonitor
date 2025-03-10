@@ -303,6 +303,8 @@ class TagsFor extends Parameter {
     }
 }
 class SetTag extends Parameter {
+    private $user;
+
     private function tagLambda() {
         $lambdaID = SQLite3::escapeString($_REQUEST["lambdaID"]);
         $tag = str_replace("\\'", "'", urldecode($_REQUEST["tag"]));
@@ -310,7 +312,6 @@ class SetTag extends Parameter {
         $mode = $_REQUEST["mode"];
 
         if ($mode == "add") {
-
             $q = "SELECT id FROM tag WHERE tag.label = '$tag'";
             $tagIDRows = getQueryRows($this->connection, $q);
             if (count($tagIDRows) == 1) {
@@ -324,7 +325,7 @@ class SetTag extends Parameter {
                 }
             }
             if (isset($tagID) && $tagID > 0) {
-                $q = "INSERT INTO lambda_tags(tag, lambda, user) VALUES($tagID, $lambdaID, $user->userID)";
+                $q = "INSERT INTO lambda_tags(tag, lambda, user) VALUES($tagID, $lambdaID, $this->user->userID)";
                 echo(updateQuery($this->connection, $q));
             }
 
@@ -332,7 +333,7 @@ class SetTag extends Parameter {
             $q = "DELETE FROM lambda_tags 
                     WHERE lambda_tags.tag = 
                     (SELECT id FROM tag WHERE tag.label = '$tag')
-                    AND lambda_tags.user = $user->userID
+                    AND lambda_tags.user = $this->user->userID
                     AND lambda_tags.lambda = $lambdaID";
             echo(updateQuery($this->connection, $q));
         }
@@ -370,7 +371,7 @@ class SetTag extends Parameter {
         }
     }
     protected function do() {
-        $user = getUser($_REQUEST["jwt"]);
+        $this->user = getUser($_REQUEST["jwt"]);
         if (isset($_REQUEST["lambdaID"])) {
             $this->tagLambda();
         } elseif (isset($_REQUEST["refactoring"])) {
