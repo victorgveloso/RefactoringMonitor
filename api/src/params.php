@@ -648,11 +648,9 @@ class Login extends Parameter {
     }
 }
 function getSecretKey() {
-    //die(base64_encode(openssl_random_pseudo_bytes(256)));
     return "nvolp5iDf4KkqVJ8n35nSLA+JogDD4gzH+Q9aSDPIHvgvpmYA9mbXLuj2LGiYSw+MSHGhSJaxEWXiG9nzLYFH/6VF9jpADp7yV38oCBVjaOD5f2BUtz2Ni3J0fUV9wSVr7e5RDwUgLPZnI5ItZmxt3kZFXMTD+DgwUorQTW4ropCkS9bdbKTxKvFN2WcU/YGsOrgdC1+/M/IZz4w4h4WLGUpWZ02XVfOrYVQcgHb3xmUZRdtO9sbb+4zxrfP7FvFQ9p7CfEzyiMmpayVqQo28DNz4RxA70M6M1xTbpwZev1Wp/GJ8EuFC307U+A8F1LS6Us0ApsWC0sT6Bfz4Cztkw==";
 }
 function unauthorized() {
     header('HTTP/1.0 401 Unauthorized');
     die();
 }
-?>

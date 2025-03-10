@@ -104,4 +104,3 @@ function updateQuery($connection, $query) {
         return json_encode(array("status" => "ERROR", "message" => $connection->lastErrorMsg(), "error" => "DB result is falsy", "query" => $query));
     }
 }
-?>
