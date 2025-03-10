@@ -90,6 +90,7 @@ function getUser($jwt) {
     }
 
     unauthorized();
+    return null;
 }
 function updateQuery($connection, $query) {
     try {
