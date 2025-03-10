@@ -261,7 +261,7 @@ class SetTag extends Parameter {
                 $tagID = $tagIDRows[0]["id"];
             } else {
                 $q = "INSERT INTO tag(label) VALUES('$tag')";
-                if (updateQuery($this->connection, $q) == '{"status": "OK"}') {
+                if (json_decode(updateQuery($this->connection, $q))["status"] == "OK") {
                     $tagID = $this->connection->insert_id;
                 } else {
                     $tagID = -1;
@@ -294,7 +294,7 @@ class SetTag extends Parameter {
                 $tagID = $tagIDRows[0]["id"];
             } else {
                 $q = "INSERT INTO tag(label) VALUES('$tag')";
-                if (updateQuery($this->connection, $q) == '{"status": "OK"}') {
+                if (json_decode(updateQuery($this->connection, $q))["status"] == "OK") {
                     $tagID = $this->connection->insert_id;
                 } else {
                     $tagID = -1;

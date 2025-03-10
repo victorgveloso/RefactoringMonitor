@@ -243,16 +243,14 @@ function getLambdaRows($connection, $projectID, $lambdaID, $emailedLambdasMode) 
 }
 function updateQuery($connection, $query) {
     try {
-        $status = $connection->query($query);
+        $status = $connection->exec($query);
     } catch (\Throwable $th) {
-        echo $query;
-        echo $th;
-        return $connection->error;
+        return json_encode(array("status" => "ERROR", "message" => $connection->lastErrorMsg(), "error" => $th, "query" => $query));
     }
     if ($status === TRUE) {
-       return '{"status": "OK"}';
+        return json_encode(array("status" => "OK", "message" => "Query executed successfully", "query" => $query));
     } else {
-        return $connection->error;
+        return json_encode(array("status" => "ERROR", "message" => $connection->lastErrorMsg(), "error" => "DB result is falsy", "query" => $query));
     }
 }
 ?>
