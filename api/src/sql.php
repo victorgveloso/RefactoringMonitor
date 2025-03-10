@@ -32,9 +32,7 @@ function getQueryRows($connection, $query) {
     $rows = array();
     if ($result->numColumns() > 0) {
         while($res = $result->fetchArray()) {
-            foreach ($res as $value) {
-                $rows[] = utf8_encode($value);
-            }
+            $rows[] = $res;
         }
     }
     return utf8ize($rows);
