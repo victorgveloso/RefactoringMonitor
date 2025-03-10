@@ -15,31 +15,6 @@ function getAuthorRank($connection, $projectID, $authorName) {
     $rows = getQueryRows($connection, $q);
     return $rows[0]["authorRank"];
 }
-/**
- * Deprecated: use getCommitRefactoringsCount instead
- */
-function getAuthorRankRefactoring($connection, $projectID, $commitID) {
-    $whereClause = "WHERE revisiongit.project = $projectID";
-    if ($refactoringType != "") {
-        $refactoringType = SQLite3::escapeString($refactoringType);
-        $whereClause .= " AND refactoringgit.refactoringType = '$refactoringType'";
-    }
-    $q = "SELECT COUNT(*) + 1 authorRank FROM (
-        SELECT COUNT(*) numberOfRefactorings FROM refactoringgit
-            INNER JOIN revisiongit ON refactoringgit.revision = revisiongit.id
-            $whereClause
-            GROUP BY revisiongit.authorName
-            HAVING COUNT(*) > 
-                (SELECT COUNT(*) FROM refactoringgit l
-                    INNER JOIN revisiongit r ON l.revision = r.id
-                    WHERE 
-                        r.authorName = '$authorName' AND
-                        r.project = $projectID
-                        $whereClause)
-    ) t1";
-    $rows = getQueryRows($connection, $q);
-    return $rows[0]["authorRank"];
-}
 function getCommitRefactoringsCount($connection, $projectID, $authorEmail, $refactoringType) {
     
     $whereClause = "";

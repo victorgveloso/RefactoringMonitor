@@ -9,14 +9,6 @@ abstract class Parameter {
     }
     protected abstract function do();
     protected abstract function name() : string;
-    public function setNext(Parameter $decorated) : Returntype {
-        if (is_null($this->decorated)) {
-            $this->decorated = $decorated;
-        }
-        else {
-            $this->decorated->setNext($decorated);
-        }
-    }
     public function isEnabled() : bool {
         return isset($_REQUEST[$this->name()]);
     }
@@ -642,17 +634,13 @@ class SendEmail extends Parameter {
         $mail->IsSMTP(); // enable SMTP
         $mail->SMTPDebug = 0; // debugging: 1 = errors and messages, 2 = messages only
         $mail->SMTPAuth = false; // authentication enabled
-        #$mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
         $mail->Host = "smtp.encs.concordia.ca";
         $mail->Port = 25; // or 587
         $mail->IsHTML(true);
-        #$mail->Username = "";
-        #$mail->Password = "";
         $mail->SetFrom($from);
         $mail->FromName = $fromName;
         $mail->Subject = $subject;
         $mail->Body = $body;
-        //$mail->AlternativeBody = getPlainTextMessage($row,$id);
         $mail->AddAddress($to);
         if (isset($bcc) && $bcc != "") {
             $mail->AddBCC($bcc);
@@ -666,24 +654,12 @@ class SendEmail extends Parameter {
         $authorEmail = urldecode($_REQUEST["toEmail"]);
         $emailBody = urldecode($_REQUEST["body"]);
         $subject = urldecode($_REQUEST["subject"]);
-        $authorName = urldecode($_REQUEST["to"]);
         $commitID = urldecode($_REQUEST["revision"]);
         $projectID = urldecode($_REQUEST["project"]);
         $emailMyself = $_REQUEST["emailMyself"] == "true";
 
         $emailBody = str_replace("\\\"", "\"", $emailBody);
         $emailBody = str_replace("\\'", "'", $emailBody);
-
-        //$headers[] = 'MIME-Version: 1.0';
-        //$headers[] = 'Content-type: text/html; charset=iso-8859-1';
-
-        //$headers[] = "To: $authorName <$authorEmail>";
-        //$headers[] = "From: $userFullName <$userEmail>";
-        //$headers[] = 'Cc: birthdayarchive@example.com';
-        //$headers[] = 'Bcc: birthdaycheck@example.com';
-
-        //$result = mail($authorEmail, $subject, $emailBody, implode("\r\n", $headers));
-        //$authorEmail = "dmazinanian@gmail.com";
 
         $bcc = "";
         if ($emailMyself) {
@@ -694,10 +670,8 @@ class SendEmail extends Parameter {
         if ($result) {
             $emailBody = SQLite3::escapeString($emailBody);
             $authorEmail = SQLite3::escapeString($authorEmail);
-            $lambdaID = SQLite3::escapeString($lambdaID);
             $userEmail = SQLite3::escapeString($userEmail);
             $subject = SQLite3::escapeString($subject);
-            $q = "";
             if (isset($_REQUEST["revision"])) {
                 $revisionID = urldecode($_REQUEST["revision"]);
                 $q = "INSERT INTO surveymail(`alternativeAddress`, `body`, `recipient`, `sentDate`, `sender`, `subject`, `revision`, `addedAt`)
