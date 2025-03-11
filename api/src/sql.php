@@ -78,14 +78,17 @@ function getUser($jwt) {
     return null;
 }
 function updateQuery($connection, $query) {
+    if (strpos($query, "INSERT") || strpos($query, "UPDATE") || strpos($query, "DELETE")) {
+        $query = "$query RETURNING *";
+    }
     try {
-        $status = $connection->exec($query);
+        $status = $connection->query($query);
     } catch (\Throwable $th) {
         return json_encode(array("status" => "ERROR", "message" => $connection->lastErrorMsg(), "error" => $th, "query" => $query));
     }
-    if ($status === TRUE) {
-        return json_encode(array("status" => "OK", "message" => "Query executed successfully", "query" => $query));
-    } else {
+    if ($status === FALSE) {
         return json_encode(array("status" => "ERROR", "message" => $connection->lastErrorMsg(), "error" => "DB result is falsy", "query" => $query));
+    } else {
+        return json_encode(array("status" => "OK", "message" => "Query executed successfully", "query" => $query));
     }
 }
