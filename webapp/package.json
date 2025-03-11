@@ -4,7 +4,8 @@
   "license": "MIT",
   "angular-cli": {},
   "scripts": {
-    "start": "ng serve --host 0.0.0.0 --port 4000",
+    "prestart": "envsubst < src/environments/environment.template.ts > src/environments/environment.ts && envsubst < src/environments/environment.template.prod.ts > src/environments/environment.prod.ts",
+    "start": "ng serve --host 0.0.0.0 --port 443",
     "lint": "tslint \"src/**/*.ts\"",
     "test": "ng test",
     "pree2e": "webdriver-manager update",

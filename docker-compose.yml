@@ -3,8 +3,10 @@ services:
     build:
       context: webapp
       dockerfile: Dockerfile
+    environment:
+      - BACKEND_SERVER_BASENAME=https://backend.monitor.gveloso.com
     ports:
-      - 4000:4000
+      - 4000:443
     depends_on:
       - php
     restart: unless-stopped

@@ -5,19 +5,20 @@ import { Email } from '../model/email';
 import { LambdaParameter } from '../model/lambda-parameter';
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs/Observable'; 
+import { Observable } from 'rxjs/Observable';
 import { User } from '../model/user';
 import { Router } from '@angular/router';
 import 'rxjs/Rx';
 import { Refactoring } from 'model/refactoring';
 import { RefactoringParameter } from 'model/refactoring-parameter';
 import { CodeRange } from '../model/code-range';
+import { environment } from '../environments/environment';
 
 @Injectable()
 export class BackEndService {
 
-  public readonly BACKEND_SERVER: string = "http://php/api.php";
-  //private readonly BACKEND_SERVER: string = "http://localhost/RefactoringMinerBackEnd/api.php";
+  private readonly BACKEND_SERVER_BASENAME: string = environment["BACKEND_SERVER_BASENAME"] || "http://localhost:8080";
+  public readonly BACKEND_SERVER: string = `${this.BACKEND_SERVER_BASENAME}/api.php`;
 
   constructor(protected http: Http, protected router: Router) { }
 
@@ -116,7 +117,7 @@ export class BackEndService {
       }
       let refactoringLocationStatus = row["refactoringLocationStatus"] ? row["refactoringLocationStatus"] : "";
       let refactoringStatus = row["status"] ? row["status"] : row["refactoring_status"] ? row["refactoring_status"] : "";
-      let refactoring = new Refactoring(row["refactoringId"], commit, row["filePath"], row["startLine"], row["endLine"], 
+      let refactoring = new Refactoring(row["refactoringId"], commit, row["filePath"], row["startLine"], row["endLine"],
         row["fileMd5"], row["body"], parameters, refactoringStatus, tags, refactoringLocationStatus, row["parent"], row["refactoringString"], row["refactoringType"], row["isTestRefactoring"]);
       if (mapExtraInfo) {
         mapExtraInfo(refactoring, row);
@@ -155,9 +156,9 @@ export class BackEndService {
     console.log(res);
     return res;
   }
-  
+
   public getProjectObjFromProjectRow(project: any): Project {
-    /*private id: number, private cloneUrl: string, private status: string, 
+    /*private id: number, private cloneUrl: string, private status: string,
         private numberOfLambdas: number, private lastAnalyzed: Date, private shouldMonitor: boolean,
         private analyzed: boolean, private branch: string, private numberOfNewLambdas: number*/
     return new Project(project["id"], project["name"], project["cloneUrl"], project["status"],
@@ -212,7 +213,7 @@ export class BackEndService {
       }
       let lambdaLocationStatus = row["lambdaLocationStatus"] ? row["lambdaLocationStatus"] : "";
       let lambdaStatus = row["lambda_status"] ? row["lambda_status"] : "";
-      let lambda = new Lambda(row["id"], commit, row["filePath"], row["startLine"], row["endLine"], 
+      let lambda = new Lambda(row["id"], commit, row["filePath"], row["startLine"], row["endLine"],
         row["fileMd5"], row["body"], parameters, lambdaStatus, tags, lambdaLocationStatus, row["parent"], row["lambdaString"]);
       if (mapExtraInfo) {
         mapExtraInfo(lambda, row);
@@ -471,7 +472,7 @@ export class BackEndService {
     return this.http.get(url)
       .map(res => {
         let emails: Email[] = [];
-        
+
         let returned = res.json();
         for (let i = 0; i < returned.length; i++) {
             const emailRow = returned[i];
