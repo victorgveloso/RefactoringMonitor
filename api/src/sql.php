@@ -31,6 +31,10 @@ function utf8ize($d) {
     return $d;
 }
 function getQueryRows($connection, $query) {
+    if (strpos($query, "INSERT") || strpos($query, "UPDATE") || strpos($query, "DELETE")) {
+        $query = "$query RETURNING *";
+    }
+    echo $query;
     $result = $connection->query($query);
     $rows = array();
     if ($result->numColumns() > 0) {
@@ -60,10 +64,10 @@ function getProjectRows($connection, $projectID) {
     return getQueryRows($connection, $qur);
 }
 function getUser($jwt) {
-
     if (isset($jwt)) {
         try {
             $secretKey = base64_decode(getSecretKey());
+            JWT::$leeway = 60;
             $token = JWT::decode($jwt, $secretKey, array('HS512'));
             return $token->data;
         } catch (Exception $e) {
