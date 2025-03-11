@@ -133,7 +133,7 @@ class Refactorings extends Parameter {
         if ($refactoringID != "") {
             $authorEmail = $refactoringRows[0]["authorEmail"];
     
-            $refactoringRows[0]["numberOfContributions"] = getCommitRefactoringsCount($connection, $projectID, $authorEmail, "");
+            $refactoringRows[0]["numberOfContributions"] = getCommitRefactoringsCount($connection, $projectID, $authorEmail);
     
             $q = "SELECT tag.*
                 FROM refactoringmotivation rm
@@ -347,7 +347,7 @@ class GetEmailTemplateRefactoring extends Parameter {
         $templateVars["projectName"] = $projectsInfo[0]["projectName"];
 
         $projectID = $projectsInfo[0]["projectID"];
-        $templateVars["numberOfContributions"] = getCommitRefactoringsCount($this->connection, $projectID, $authorEmail, "");
+        $templateVars["numberOfContributions"] = getCommitRefactoringsCount($this->connection, $projectID, $authorEmail);
         if(isset($_REQUEST["filePath"])) {
             $filePath = urldecode($_REQUEST["filePath"]);
             $offset = strrpos($filePath, "/") + 1;

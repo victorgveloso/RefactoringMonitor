@@ -19,11 +19,7 @@
     } catch (Exception $e) {
         die('Connection failed: ' . $e->getMessage());
     }
-    const AllLambdas = 0;
-    const OnlyEmailedLambdas = 1;
-    const ImInvolvedInLambdas = 2;
-    const OnlyEmailedByOthersLambdas = 3;
-
+    
     header("Access-Control-Allow-Origin: *");
     header("Content-type: application/json");
 

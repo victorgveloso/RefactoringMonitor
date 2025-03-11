@@ -1,5 +1,8 @@
 <?php
-function getCommitRefactoringsCount($connection, $projectID, $authorEmail, $refactoringType) {
+
+use Firebase\JWT\JWT;
+
+function getCommitRefactoringsCount($connection, $projectID, $authorEmail) {
     
     $whereClause = "";
     if ($projectID != "") {
@@ -61,7 +64,7 @@ function getUser($jwt) {
     if (isset($jwt)) {
         try {
             $secretKey = base64_decode(getSecretKey());
-            $token = \Firebase\JWT\JWT::decode($jwt, $secretKey, array('HS512'));
+            $token = JWT::decode($jwt, $secretKey, array('HS512'));
             return $token->data;
         } catch (Exception $e) {
             echo $e;
