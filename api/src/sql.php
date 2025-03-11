@@ -34,7 +34,6 @@ function getQueryRows($connection, $query) {
     if (strpos($query, "INSERT") || strpos($query, "UPDATE") || strpos($query, "DELETE")) {
         $query = "$query RETURNING *";
     }
-    echo $query;
     $result = $connection->query($query);
     $rows = array();
     if ($result->numColumns() > 0) {
