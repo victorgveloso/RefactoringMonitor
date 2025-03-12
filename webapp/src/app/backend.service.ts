@@ -158,11 +158,15 @@ export class BackEndService {
   }
 
   public getProjectObjFromProjectRow(project: any): Project {
-    /*private id: number, private cloneUrl: string, private status: string,
-        private numberOfLambdas: number, private lastAnalyzed: Date, private shouldMonitor: boolean,
-        private analyzed: boolean, private branch: string, private numberOfNewLambdas: number*/
+    let last_update = project["last_update"];
+    if (typeof last_update === "string") {
+      last_update = new Date(last_update.replace(/-/g, "/"));
+    }
+    else {
+      last_update = new Date(last_update);
+    }
     return new Project(project["id"], project["name"], project["cloneUrl"], project["status"],
-      +project["numberOfLambdas"], new Date(project["last_update"].replace(/-/g, "/")), +project["monitoring_enabled"] == 1,
+      +project["numberOfLambdas"], last_update, +project["monitoring_enabled"] == 1,
       +project["analyzed"] == 1, project["default_branch"], +project["numberOfNewLambdas"], +project["numberOfCommits"], +project["commits_count"]);
   }
 
