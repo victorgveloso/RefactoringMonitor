@@ -42,7 +42,7 @@ class CodeRange extends Parameter {
         $refactoringID = $_REQUEST["refactoringID"];
     
         $q = "SELECT r.id AS refactoringId, r.description AS refactoringDescription, r.refactoringType, cr.*, rg.commitId, pg.cloneUrl,
-                    (substr(pg.cloneUrl, 1, LENGTH(pg.cloneUrl)-4) || '/commit/' || rg.commitId ||  '#diff-' ||  hex(SHA256(cr.filePath)) || 'R' || cr.startLine || '-R' || cr.endLine) AS refactoringLink
+                    (substr(pg.cloneUrl, 1, LENGTH(pg.cloneUrl)-4) || '/commit/' || rg.commitId ||  '#diff-' ||  cr.filePath || 'R' || cr.startLine || '-R' || cr.endLine) AS refactoringLink
             FROM refactoringgit r
             LEFT OUTER JOIN revisiongit rg  ON rg.id = r.revision
             LEFT OUTER JOIN projectgit pg  ON pg.id = rg.project
@@ -332,7 +332,7 @@ class GetEmailTemplateRefactoring extends Parameter {
     protected function do() {
         $refactoringID = SQLite3::escapeString(urldecode($_REQUEST["refactoringID"]));
         $q = "SELECT r.authorName, r.authorEmail, r.project AS projectID, p.name AS projectName, 
-        (substr(p.cloneUrl, 1, LENGTH(p.cloneUrl)-4) || '/commit/' || r.commitId ||  '#diff-' ||  hex(SHA256(c.filePath)) || 'R' || c.startLine || '-R' || c.endLine) AS refactoringDiffLink, c.filePath
+        (substr(p.cloneUrl, 1, LENGTH(p.cloneUrl)-4) || '/commit/' || r.commitId ||  '#diff-' ||  c.filePath || 'R' || c.startLine || '-R' || c.endLine) AS refactoringDiffLink, c.filePath
         FROM refactoringgit r2
         INNER JOIN revisiongit r ON r2.revision = r.id  
         INNER JOIN projectgit p ON r.project = p.id 
