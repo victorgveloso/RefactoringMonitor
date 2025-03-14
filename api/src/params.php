@@ -40,15 +40,26 @@ class Projects extends Parameter {
 class CodeRange extends Parameter {
     protected function do() {
         $refactoringID = $_REQUEST["refactoringID"];
-    
-        $q = "SELECT r.id AS refactoringId, r.description AS refactoringDescription, r.refactoringType, cr.*, rg.commitId, pg.cloneUrl,
-                    (substr(pg.cloneUrl, 1, LENGTH(pg.cloneUrl)-4) || '/commit/' || rg.commitId ||  '#diff-' ||  cr.filePath || 'R' || cr.startLine || '-R' || cr.endLine) AS refactoringLink
-            FROM refactoringgit r
-            LEFT OUTER JOIN revisiongit rg  ON rg.id = r.revision
-            LEFT OUTER JOIN projectgit pg  ON pg.id = rg.project
-            LEFT OUTER JOIN coderangegit cr ON cr.refactoring = r.id
-            WHERE r.id = $refactoringID";
+        $q = "SELECT r.id AS refactoringId, r.description AS refactoringDescription, 
+          r.refactoringType, cr.*, rg.commitId, pg.cloneUrl, cr.filePath, cr.startLine, cr.endLine
+          FROM refactoringgit r
+          LEFT OUTER JOIN revisiongit rg ON rg.id = r.revision
+          LEFT OUTER JOIN projectgit pg ON pg.id = rg.project
+          LEFT OUTER JOIN coderangegit cr ON cr.refactoring = r.id
+          WHERE r.id = $refactoringID";
         $codeRangeRows = getQueryRows($this->connection, $q);
+        // Compute hashes and build URLs
+        foreach ($codeRangeRows as &$row) {
+            if (!empty($row['filePath'])) {
+                $filePath = $row['filePath'];
+                $hash = hash('sha256', $filePath);
+                $cloneUrl = $row['cloneUrl'];
+                $commitId = $row['commitId'];
+                $baseUrl = substr($cloneUrl, 0, -4); // Remove ".git"
+                $row['refactoringLink'] = "$baseUrl/commit/$commitId#diff-$hash" .
+                    "R{$row['startLine']}-R{$row['endLine']}";
+            }
+        }
         echo (json_encode($codeRangeRows));
     }
     protected function name() : string {
@@ -332,18 +343,27 @@ class GetEmailTemplateRefactoring extends Parameter {
     protected function do() {
         $refactoringID = SQLite3::escapeString(urldecode($_REQUEST["refactoringID"]));
         $q = "SELECT r.authorName, r.authorEmail, r.project AS projectID, p.name AS projectName, 
-        (substr(p.cloneUrl, 1, LENGTH(p.cloneUrl)-4) || '/commit/' || r.commitId ||  '#diff-' ||  c.filePath || 'R' || c.startLine || '-R' || c.endLine) AS refactoringDiffLink, c.filePath
-        FROM refactoringgit r2
-        INNER JOIN revisiongit r ON r2.revision = r.id  
-        INNER JOIN projectgit p ON r.project = p.id 
-        INNER JOIN coderangegit c ON c.refactoring = r2.id 
-        WHERE r2.id = $refactoringID AND c.diffSide = 'RIGHT' LIMIT 1";
-
+          p.cloneUrl, r.commitId, c.filePath, c.startLine, c.endLine
+          FROM refactoringgit r2
+          INNER JOIN revisiongit r ON r2.revision = r.id  
+          INNER JOIN projectgit p ON r.project = p.id 
+          INNER JOIN coderangegit c ON c.refactoring = r2.id 
+          WHERE r2.id = $refactoringID AND c.diffSide = 'RIGHT' LIMIT 1";
         $projectsInfo = getQueryRows($this->connection, $q);
+        if (!empty($projectsInfo)) {
+            $project = $projectsInfo[0];
+            $filePath = $project['filePath'];
+            $hash = hash('sha256', $filePath);
+            $cloneUrl = $project['cloneUrl'];
+            $commitId = $project['commitId'];
+            $baseUrl = substr($cloneUrl, 0, -4); // Remove ".git"
+            $templateVars["commitUrl"] = "$baseUrl/commit/$commitId#diff-$hash" .
+                "R{$project['startLine']}-R{$project['endLine']}";
+        }
         $authorEmail = $projectsInfo[0]["authorEmail"];
         $templateVars["authorName"] = $projectsInfo[0]["authorName"];
 
-        $templateVars["commitUrl"] = $projectsInfo[0]["refactoringDiffLink"];
+//        $templateVars["commitUrl"] = $projectsInfo[0]["refactoringDiffLink"];
         $templateVars["projectName"] = $projectsInfo[0]["projectName"];
 
         $projectID = $projectsInfo[0]["projectID"];
