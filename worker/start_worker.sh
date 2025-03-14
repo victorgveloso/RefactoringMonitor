@@ -7,6 +7,12 @@ echo " | | \ \  __/ || (_| | (__| || (_) | |  | | | | | (_| | | |  | | (_) | | |
 echo " |_|  \_\___|_| \__,_|\___|\__\___/|_|  |_|_| |_|\__, | |_|  |_|\___/|_| |_|_|\__\___/|_|   "
 echo "                                                  __/ |                                      "
 echo "                                                 |___/                                       "
+if [ -f .env ]
+then
+  echo ".env file located! Loading env vars..."
+  set -a && source .env && set +a
+  echo "Done!"
+fi
 echo "Welcome to RefactoringMonitor"
 echo "Select an option:"
 echo "1) Load repositories from GitHub into database"
@@ -17,6 +23,14 @@ read -p "Option (1/2/3): " option
 case $option in
   1)
     read -p "Enter your GitHub OAuth key: " oauth_key
+
+    LINE_COUNT=$(wc -l < .env)
+    if [[ "$LINE_COUNT" -le 1 ]]; then
+      echo "GITHUB_OAUTH=${oauth_key}" > .env
+    else
+      echo "GITHUB_OAUTH=${oauth_key}" >> .env
+    fi
+
     read -p "Enter path to input file with list of repositories [./test-repos.txt]: " input_file
     input_file=${input_file:-"${PWD}/test-repos.txt"} # Default value if none provided
     java --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED -cp RefactoringMiner/RM-fat.jar br.ufmg.dcc.labsoft.refactoringanalyzer.operations.GitProjectFinder  $oauth_key "${input_file}"
