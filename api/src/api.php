@@ -16,7 +16,6 @@
     try {
         $globalConnection = new SQLite3($DATABASE_PATH);
         $globalConnection->enableExceptions(true);
-        $globalConnection->loadExtension('libsqlite_hashes');
     } catch (Exception $e) {
         die('Connection failed: ' . $e->getMessage());
     }
