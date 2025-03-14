@@ -103,7 +103,14 @@ export class BackEndService {
       let commitRowID: number = parseInt(row["commitRowId"]);
       let commit: Commit = commits[commitRowID];
       if (typeof commit === "undefined") {
-        commit = new Commit(getProjectFunc(row), commitRowID, row["commitId"], new Date(row["commitTime"].replace(/-/g, "/")), row["authorName"], row["authorEmail"], +row["authorRank"], row["FullMessage"]);
+        let commitTime = row["commitTime"]
+        if (typeof commitTime === "string") {
+          commitTime = new Date(commitTime.replace(/-/g, "/"));
+        }
+        else {
+          commitTime = new Date(commitTime);
+        }
+        commit = new Commit(getProjectFunc(row), commitRowID, row["commitId"], commitTime, row["authorName"], row["authorEmail"], +row["authorRank"], row["FullMessage"]);
         commits[commitRowID] = commit;
       }
       let parameters: RefactoringParameter[] = [];
@@ -199,7 +206,14 @@ export class BackEndService {
       let commitRowID: number = +row["commitRowID"];
       let commit: Commit = commits[commitRowID];
       if (typeof commit === "undefined") {
-        commit = new Commit(getProjectFunc(row), commitRowID, row["commitSHA1"], new Date(row["commitTime"].replace(/-/g, "/")), row["authorName"], row["authorEmail"], +row["authorRank"], "");
+        let commitTime = row["commitTime"]
+        if (typeof commitTime === "string") {
+          commitTime = new Date(commitTime.replace(/-/g, "/"));
+        }
+        else {
+          commitTime = new Date(commitTime);
+        }
+        commit = new Commit(getProjectFunc(row), commitRowID, row["commitSHA1"], commitTime, row["authorName"], row["authorEmail"], +row["authorRank"], "");
         commits[commitRowID] = commit;
       }
       let parameters: LambdaParameter[] = [];
