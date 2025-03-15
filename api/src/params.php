@@ -272,9 +272,15 @@ class SetTag extends Parameter {
                 }
             }
             if (isset($tagID) && $tagID > 0) {
-                $q = "UPDATE revisiongit SET status = 'TAGGED'
-                   INNER JOIN refactoringgit ON refactoringgit.revision = revisiongit.id
-                   WHERE refactoringgit.id = $refactoringID AND revisiongit.status = 'NEW'";
+                $q = "UPDATE revisiongit
+                    SET status = 'SEEN'
+                    WHERE id IN (
+                      SELECT revisiongit.id
+                      FROM revisiongit
+                      INNER JOIN refactoringgit ON refactoringgit.revision = revisiongit.id
+                      WHERE refactoringgit.id = $refactoringID
+                        AND revisiongit.status = 'NEW'
+                    )";
                 $statusRes = updateQuery($this->connection, $q);
                 $q = "INSERT INTO refactoringmotivation(tag, refactoring) VALUES($tagID, $refactoringID)";
                 $tagAdditionRes = updateQuery($this->connection, $q);
