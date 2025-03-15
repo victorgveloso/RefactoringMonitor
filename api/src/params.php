@@ -275,9 +275,10 @@ class SetTag extends Parameter {
                 $q = "UPDATE revisiongit SET status = 'TAGGED'
                    INNER JOIN refactoringgit ON refactoringgit.revision = revisiongit.id
                    WHERE refactoringgit.id = $refactoringID AND revisiongit.status = 'NEW'";
-                updateQuery($this->connection, $q);
+                $statusRes = updateQuery($this->connection, $q);
                 $q = "INSERT INTO refactoringmotivation(tag, refactoring) VALUES($tagID, $refactoringID)";
-                echo(updateQuery($this->connection, $q));
+                $tagAdditionRes = updateQuery($this->connection, $q);
+                echo(json_encode(array("status" => "OK", "tagAdditionRes" => $tagAdditionRes, "statusRes" => $statusRes)));
             }
 
         } elseif ($mode == "remove") {
