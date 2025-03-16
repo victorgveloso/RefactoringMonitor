@@ -463,11 +463,11 @@ class SendEmail extends Parameter {
             if (isset($_REQUEST["revision"])) {
                 $revisionID = urldecode($_REQUEST["revision"]);
                 $q = "INSERT INTO surveymail(`alternativeAddress`, `body`, `recipient`, `sentDate`, `sender`, `subject`, `revision`, `addedAt`)
-                                    VALUES('', '$emailBody', '$authorEmail', NOW(), '$userEmail', '$subject', $revisionID, NOW())";
+                                    VALUES('', '$emailBody', '$authorEmail', CURRENT_TIMESTAMP, '$userEmail', '$subject', $revisionID, CURRENT_TIMESTAMP)";
             }
             else {
             $q = "INSERT INTO surveymail(`alternativeAddress`, `body`, `recipient`, `sentDate`, `sender`, `subject`, `addedAt`)
-                                VALUES('', '$emailBody', '$authorEmail', NOW(), '$userEmail', '$subject', NOW())";
+                                VALUES('', '$emailBody', '$authorEmail', CURRENT_TIMESTAMP, '$userEmail', '$subject', CURRENT_TIMESTAMP)";
             }
             $this->updateSameProjectOlderCommitStatus($this->connection, $commitID, $projectID);
             $this->updateSameAuthorCommitStatus($this->connection, $commitID, $authorEmail);
@@ -504,7 +504,7 @@ class AddResponseRefactoring extends Parameter {
         $emailID = $emailIDRows[0]["id"];
 
         $q = "INSERT INTO surveyresponse(`addedAt`,`sentDate`,`bodyHtml`,`bodyPlain`,`fromAddress`,`subject`,`survey`)
-                    VALUES(NOW(), NOW(), '$emailBody', '$emailBody', '$authorEmail', '$subject', '$emailID')";
+                    VALUES(CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '$emailBody', '$emailBody', '$authorEmail', '$subject', '$emailID')";
         
         echo(updateQuery($this->connection, $q));
     }
