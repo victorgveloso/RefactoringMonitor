@@ -41,6 +41,7 @@ export class RefactoringsTableComponent {
     } else {
       this.paginator.removeFilter("isTestRefactoring");
     }
+    this.paginator.apply();
   }
 
   private changeShowOnlyNewRefactorings(shouldShowOnlyNew: boolean) {
@@ -49,6 +50,7 @@ export class RefactoringsTableComponent {
     } else {
       this.paginator.removeFilter("status");
     }
+    this.paginator.apply();
   }
 
   private navigateTo(refactoring: Refactoring) {
@@ -57,7 +59,7 @@ export class RefactoringsTableComponent {
     if (!projectID || !refactoringID) {
       console.error(projectID, refactoringID);
       console.error(refactoring);
-      
+
       return;
     }
     this.router.navigate(['/refactoring-details', projectID, refactoringID]);
@@ -84,7 +86,7 @@ export class RefactoringsTableComponent {
     }
   }
 
-  ngOnDesctroy() {
+  ngOnDestroy() {
     console.log('refactoringsFiltered:', this.refactoringsFiltered);
     if (this.sub) {
       this.sub.unsubscribe();

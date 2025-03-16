@@ -20,6 +20,7 @@ export class EmailsTableComponent {
         this.paginator.setPath('emails');
         this.paginator.setNumberOfItemsPerPage(refactorings.length);
         this.paginator.setData(refactorings);
+        this.paginator.apply();
       },
       error => console.log(<any>error));
   }

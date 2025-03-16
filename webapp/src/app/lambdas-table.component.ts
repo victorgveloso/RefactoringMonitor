@@ -56,7 +56,7 @@ export class LambdasTableComponent implements OnChanges {
     }
   }
 
-  ngOnDesctroy() {
+  ngOnDestroy() {
     if (this.sub) {
       this.sub.unsubscribe();
     }
