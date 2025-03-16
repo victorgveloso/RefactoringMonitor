@@ -542,12 +542,17 @@ class Signup extends Parameter {
         $salt = "THEALMIGHTY";
         return sha1($password . $salt);
     }
-    private function doRegister($connection, $username, $password) {
+    private function doRegister($connection, $username, $password, $role = "ADMIN", $email = "", $familyName = "") {
         $u = $username;
         $username = SQLite3::escapeString(strtolower($username));
         $password = $this->hashPassword($password);
-
-        $q = "INSERT INTO users (userName,password) VALUES ('$username', '$password')";
+        if ($email == "") {
+            $q = "INSERT INTO users (userName,password,userRole,name,familyName) VALUES ('$username', '$password','$role','$username','$familyName')";
+        }
+        else {
+            $email = SQLite3::escapeString($email);
+            $q = "INSERT INTO users (userName,password,userRole,name,email,familyName) VALUES ('$username', '$password','$role','$username','$email','$familyName')";
+        }
 
         $userRow = updateQuery($connection, $q);
         $resp = json_decode($userRow);
@@ -562,7 +567,7 @@ class Signup extends Parameter {
         }
     }
     protected function do() {
-        $this->doRegister($this->connection, $_REQUEST["u"], $_REQUEST["p"]);
+        $this->doRegister($this->connection, $_REQUEST["u"], $_REQUEST["p"], $_REQUEST["r"] ?? $_REQUEST["role"] ?? "ADMIN", $_REQUEST["e"] ?? $_REQUEST["email"] ?? "", $_REQUEST["f"] ?? $_REQUEST["familyName"] ?? "");
     }
     protected function name() : string {
         return "signup";
