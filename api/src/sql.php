@@ -89,6 +89,6 @@ function updateQuery($connection, $query) {
     if ($status === FALSE) {
         return json_encode(array("status" => "ERROR", "message" => $connection->lastErrorMsg(), "error" => "DB result is falsy", "query" => $query));
     } else {
-        return json_encode(array("status" => "OK", "message" => "Query executed successfully", "query" => $query));
+        return json_encode(array("status" => "OK", "message" => "Query executed successfully", "query" => $query, "result" => $status));
     }
 }

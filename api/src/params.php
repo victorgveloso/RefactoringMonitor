@@ -262,11 +262,13 @@ class SetTag extends Parameter {
             $q = "SELECT id FROM tag WHERE tag.label = '$tag'";
             $tagIDRows = getQueryRows($this->connection, $q);
             if (count($tagIDRows) == 1) {
+                $tagCreationStatus = "";
                 $tagID = $tagIDRows[0]["id"];
             } else {
                 $q = "INSERT INTO tag(label) VALUES('$tag')";
-                if (json_decode(updateQuery($this->connection, $q))["status"] == "OK") {
-                    $tagID = $this->connection->insert_id;
+                $tagCreationStatus = updateQuery($this->connection, $q);
+                if (json_decode($tagCreationStatus)["status"] == "OK") {
+                    $tagID = json_decode($tagCreationStatus)["result"]["id"];
                 } else {
                     $tagID = -1;
                 }
@@ -284,7 +286,7 @@ class SetTag extends Parameter {
                 $statusRes = updateQuery($this->connection, $q);
                 $q = "INSERT INTO refactoringmotivation(tag, refactoring) VALUES($tagID, $refactoringID)";
                 $tagAdditionRes = updateQuery($this->connection, $q);
-                echo(json_encode(array("status" => "OK", "tagAdditionRes" => $tagAdditionRes, "statusRes" => $statusRes)));
+                echo(json_encode(array("status" => "OK", "tagAdditionRes" => $tagAdditionRes, "statusRes" => $statusRes, "tagCreationStatus" => $tagCreationStatus)));
             }
 
         } elseif ($mode == "remove") {
