@@ -570,6 +570,7 @@ export class BackEndService {
           refactoring["by"] = "Others";
           allTheRefactorings.push(refactoring);
         });
+        console.log(allTheRefactorings);
         return allTheRefactorings;
       })
       .catch(error => this.handleError(error, url));

@@ -14,7 +14,6 @@ export class EmailsTableComponent {
   refactoringsFiltered = [];
 
   constructor(private backendService: BackEndService, private paginator: PaginatorService) {
-    // this.backendService.getrefactoringsEmailedFor().subscribe(
     this.backendService.getRefactoringsEmailedFor().subscribe(
       refactorings => {
         this.paginator.setObserver(sortedData => this.refactoringsFiltered = sortedData);
