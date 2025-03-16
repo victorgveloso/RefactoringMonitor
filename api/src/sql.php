@@ -26,14 +26,17 @@ function utf8ize($d) {
             $d[$k] = utf8ize($v);
         }
     } else if (is_string ($d)) {
-        return utf8_encode($d);
+	// Common encodings to check
+        $encodings = ['UTF-8', 'ISO-8859-1', 'Windows-1252', 'UTF-16'];
+        $encoding = mb_detect_encoding($d, $encodings, true);
+        if ($encoding && $encoding !== 'UTF-8') {
+            return mb_convert_encoding($d, 'UTF-8', $encoding);
+        }
+        return $d;
     }
     return $d;
 }
 function getQueryRows($connection, $query) {
-    if (strpos($query, "INSERT") || strpos($query, "UPDATE") || strpos($query, "DELETE")) {
-        $query = "$query RETURNING *";
-    }
     $result = $connection->query($query);
     $rows = array();
     if ($result->numColumns() > 0) {
@@ -78,9 +81,6 @@ function getUser($jwt) {
     return null;
 }
 function updateQuery($connection, $query) {
-    if (strpos($query, "INSERT") || strpos($query, "UPDATE") || strpos($query, "DELETE")) {
-        $query = "$query RETURNING *";
-    }
     try {
         $status = $connection->query($query);
     } catch (\Throwable $th) {
@@ -89,6 +89,6 @@ function updateQuery($connection, $query) {
     if ($status === FALSE) {
         return json_encode(array("status" => "ERROR", "message" => $connection->lastErrorMsg(), "error" => "DB result is falsy", "query" => $query));
     } else {
-        return json_encode(array("status" => "OK", "message" => "Query executed successfully", "query" => $query, "result" => $status));
+        return json_encode(array("status" => "OK", "message" => "Query executed successfully", "query" => $query));
     }
 }
