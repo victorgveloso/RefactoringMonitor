@@ -501,16 +501,22 @@ class AddResponseRefactoring extends Parameter {
         $subject = SQLite3::escapeString(urldecode($_REQUEST["subject"]));
         $refactoringID = SQLite3::escapeString(urldecode($_REQUEST["refactoring"]));
 
-        $q = "SELECT id FROM surveymail WHERE surveymail.revision = $revisionID AND surveymail.recipient = '$authorEmail'";
+        $selectQuery = "SELECT id FROM surveymail WHERE surveymail.revision = $revisionID AND surveymail.recipient = '$authorEmail'";
 
-        $emailIDRows = getQueryRows($this->connection, $q);
+        $emailIDRows = getQueryRows($this->connection, $selectQuery);
 
-        $emailID = $emailIDRows[0]["id"];
+        if ($emailIDRows == null || count($emailIDRows) == 0) {
+            echo(json_encode(array("status" => "ERROR", "message" => "No email found for this refactoring and author.", "failed_query" => $selectQuery)));
+        }
+        else {
+            $emailID = $emailIDRows[0]["id"];
 
-        $q = "INSERT INTO surveyresponse(`addedAt`,`sentDate`,`bodyHtml`,`bodyPlain`,`fromAddress`,`subject`,`survey`)
-                    VALUES(CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '$emailBody', '$emailBody', '$authorEmail', '$subject', '$emailID')";
-        
-        echo(updateQuery($this->connection, $q));
+            $q = "INSERT INTO surveyresponse(`addedAt`,`sentDate`,`bodyHtml`,`bodyPlain`,`fromAddress`,`subject`,`survey`)
+                        VALUES(CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '$emailBody', '$emailBody', '$authorEmail', '$subject', '$emailID')";
+
+            $responseAdded = updateQuery($this->connection, $q);
+            echo(json_encode(array("status"=>"OK","select"=>array("output"=>$emailIDRows,"query"=>$selectQuery), "insert"=>array("output"=>$responseAdded, "query"=>$q))));
+        }
     }
     protected function name() : string {
         return "addRefactoringResponse";
@@ -519,7 +525,6 @@ class AddResponseRefactoring extends Parameter {
 class GetEmails  extends Parameter {
     protected function do() {
         if (isset($_REQUEST["refactoring"])) {
-            $email = SQLite3::escapeString(urldecode($_REQUEST["email"]));
             $refactoringID = $_REQUEST["refactoring"];
             $q = "  SELECT r.id AS refactoringId, sm.*, sr.id AS responseId, sr.bodyHtml, sr.subject AS responseSubject, sr.sentDate AS responseSentDate
                     FROM refactoringgit r 
